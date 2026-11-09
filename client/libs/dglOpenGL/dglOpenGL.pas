@@ -19658,41 +19658,28 @@ var
   MajorVersion, MinorVersion: Integer;
 
   procedure TrimAndSplitVersionString(Buffer: String; var Max, Min: Integer);
-    // Peels out the X.Y form from the given Buffer which must contain a version string like "text Minor.Major.Build text"
-    // at least however "Major.Minor".
+  // odporna wersja: dziala dla "4.6.0 ...", "OpenGL ES 3.2 ..." i "OpenGL ES GLSL ES 3.20"
   var
-    Separator: Integer;
+    I, J: Integer;
   begin
-    try
-      // There must be at least one dot to separate major and minor version number.
-      Separator := Pos('.', Buffer);
-      // At least one number must be before and one after the dot.
-      if (Separator > 1) and (Separator < Length(Buffer)) and (AnsiChar(Buffer[Separator - 1]) in ['0'..'9']) and
-      (AnsiChar(Buffer[Separator + 1]) in ['0'..'9']) then
-      begin
-        // OK, it's a valid version string. Now remove unnecessary parts.
-        Dec(Separator);
-        // Find last non-numeric character before version number.
-        while (Separator > 0) and (AnsiChar(Buffer[Separator]) in ['0'..'9']) do
-          Dec(Separator);
-        // Delete leading characters which do not belong to the version string.
-        Delete(Buffer, 1, Separator);
-        Separator := Pos('.', Buffer) + 1;
-        // Find first non-numeric character after version number
-        while (Separator <= Length(Buffer)) and (AnsiChar(Buffer[Separator]) in ['0'..'9']) do
-          Inc(Separator);
-        // delete trailing characters not belonging to the version string
-        Delete(Buffer, Separator, 255);
-        // Now translate the numbers.
-        Separator := Pos('.', Buffer); // This is necessary because the buffer length might have changed.
-        Max := StrToInt(Copy(Buffer, 1, Separator - 1));
-        Min := StrToInt(Copy(Buffer, Separator + 1, 1));
-      end
-      else
-        Abort;
-    except
-      Min := 0;
-      Max := 0;
+    Max := 0;
+    Min := 0;
+    I := 1;
+    while (I <= Length(Buffer)) and not (AnsiChar(Buffer[I]) in ['0'..'9']) do
+      Inc(I);
+    J := I;
+    while (J <= Length(Buffer)) and (AnsiChar(Buffer[J]) in ['0'..'9']) do
+      Inc(J);
+    if J > I then
+      Max := StrToIntDef(Copy(Buffer, I, J - I), 0);
+    if (J <= Length(Buffer)) and (Buffer[J] = '.') then
+    begin
+      Inc(J);
+      I := J;
+      while (J <= Length(Buffer)) and (AnsiChar(Buffer[J]) in ['0'..'9']) do
+        Inc(J);
+      if J > I then
+        Min := StrToIntDef(Copy(Buffer, I, J - I), 0);
     end;
   end;
 
