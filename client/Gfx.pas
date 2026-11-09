@@ -505,7 +505,7 @@ end;
 function InitShaderProgram(Dithering: Boolean): Boolean;
 const
   VERT_SOURCE: array[0..12] of string = (
-    '#version 120',
+    '#version 100',
     'uniform mat3 mvp;',
     'attribute vec4 in_position;',
     'attribute vec2 in_texcoords;',
@@ -521,7 +521,7 @@ const
   );
 
   FRAG_SOURCE: array[0..11] of string = (
-    '#version 120',
+    '#version 100'#10'precision mediump float;',
     '#define DITHERING 1',
     'varying vec2 texcoords;',
     'varying vec4 color;',

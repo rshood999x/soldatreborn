@@ -15194,6 +15194,7 @@ end;
 
 function dglGetProcAddress(ProcName: PAnsiChar; LibHandle: Pointer = nil {$IFDEF DGL_LINUX}; ForceDLSym: Boolean = False{$ENDIF}): Pointer;
 begin
+Result := nil;
   if LibHandle = nil then
     LibHandle := GL_LibHandle;
 
