@@ -565,6 +565,39 @@ end;
 
 {$ENDIF}
 
+{$IFDEF ANDROID}
+procedure AndroidPrepareData(Dir: PChar);
+var
+  Src: PSDL_RWops;
+  Dst: TFileStream;
+  Buf: array[0..65535] of Byte;
+  N: size_t;
+  SrcSize: Int64;
+  Target: string;
+begin
+  Target := string(Dir) + 'soldat.smod';
+  Src := SDL_RWFromFile('soldat.smod', 'rb');
+  if Src = nil then Exit;
+  SrcSize := SDL_RWsize(Src);
+  if FileExists(Target) then
+  begin
+    Dst := TFileStream.Create(Target, fmOpenRead);
+    N := Dst.Size;
+    Dst.Free;
+    if Int64(N) = SrcSize then Exit;
+  end;
+  Dst := TFileStream.Create(Target, fmCreate);
+  try
+    repeat
+      N := SDL_RWread(Src, @Buf[0], 1, SizeOf(Buf));
+      if N > 0 then Dst.WriteBuffer(Buf[0], N);
+    until N = 0;
+  finally
+    Dst.Free;
+  end;
+end;
+{$ENDIF}
+
 procedure StartGame();
 var
   ini: TMemINIFile;
@@ -580,6 +613,10 @@ begin
   ExeName := ParamStr(0);
   UserPathSDL := SDL_GetPrefPath('Soldat', 'Soldat');
   BasePathSDL := SDL_GetBasePath();
+  {$IFDEF ANDROID}
+  AndroidPrepareData(UserPathSDL);
+  BasePathSDL := UserPathSDL;
+  {$ENDIF}
 
   CvarInit();
 
