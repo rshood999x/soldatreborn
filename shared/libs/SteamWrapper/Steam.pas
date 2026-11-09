@@ -46,6 +46,9 @@ const
   {$IFDEF LINUX}
   STEAMLIB = 'libGameNetworkingSockets.so';
   {$ENDIF}
+{$IFDEF ANDROID}
+  STEAMLIB = 'libGameNetworkingSockets.so';
+{$ENDIF}
   {$ENDIF}
 
   STEAM_APPID = 638490;
